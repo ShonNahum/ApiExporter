@@ -52,7 +52,7 @@ for api_key in api_keys:
         print(f"Skipping invalid configuration for {api_key}: Missing API URL or Metric Name")
 
 # Start the Prometheus metrics server on port 8000
-start_http_server(8000)
+start_http_server(int(os.getenv("PORT", 8000)))
 
 if __name__ == "__main__":
     while True:

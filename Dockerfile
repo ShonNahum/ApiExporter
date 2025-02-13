@@ -10,8 +10,5 @@ COPY . /app
 # Install dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port Prometheus will scrape from
-EXPOSE 8000
-
 # Command to run the application
 CMD ["python", "main.py"]

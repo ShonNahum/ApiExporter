@@ -11,7 +11,7 @@ The purpose of this project is to:
 
 ## Features
 
-- **Scrape multiple APIs**: Supports multiple API URLs specified in a [Configuration File](config.env) file.
+- **Scrape multiple APIs**: Supports multiple API URLs specified in a [config.env](config.env) file.
 - **Expose metrics to Prometheus**: Provides an HTTP endpoint (`/metrics`) that Prometheus can scrape.
 - **Customizable Scraping Frequency**: Scrapes API data every X seconds (Depends on what you set in config.env)
 - **Dynamic Metric Names**: The metric names are dynamically generated based on the environment variable names.
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 ```
 
 ### How to run
-```
-1. Create a config.env file as the following: [Configuration File](config.env)
-2. docker run -d -p 8000:8000 -v $(pwd)/config.env:/app/config.env --name exporter python-prometheus-exporter
-```
+
+- Create a config.env file with [config.env](config.env) format 
+
+- docker run -d -p 8000:8000 -v $(pwd)/config.env:/app/config.env --name exporter python-prometheus-exporter

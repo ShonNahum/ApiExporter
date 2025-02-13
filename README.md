@@ -37,5 +37,6 @@ pip install -r requirements.txt
 ### How to run
 
 - Create a config.env file with [config.env](config.env) format 
-
-- docker run -d -p 8000:8000 -v $(pwd)/config.env:/app/config.env --name exporter python-prometheus-exporter
+```
+- docker run -d -p <PORT in config.env | 8000>:<PORT in config.env | 8000> -v $(pwd)/config.env:/app/config.env --name exporter python-prometheus-exporter
+```

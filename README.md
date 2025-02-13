@@ -1,6 +1,6 @@
-# Python Prometheus Exporter for Bandwidth Metrics
+# Python Prometheus Exporter for API Metrics
 
-This project provides a **Prometheus exporter** implemented in Python, which scrapes the value by its name that you define in `config.env` from multiple APIs and exposes them as metrics for Prometheus to scrape. The exporter reads API URLs from a `config.env` file (by the format '<name>_API=<API URL>' and fetches the values from these APIs periodically.
+This project provides a **Prometheus exporter** implemented in Python, which scrapes the *SINGLE * value by its name that you define in `config.env` from multiple APIs and exposes them as metrics for Prometheus to scrape. The exporter reads API URLs from a `config.env` file (by the format '<name>_API=<API URL>' and fetches the values from these APIs periodically.
 It then exposes the metrics on a specified HTTP endpoint, which Prometheus can scrape. (Default port 8000, but can override in config.env with PORT env varaible) 
 
 ## Purpose

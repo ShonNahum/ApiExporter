@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from prometheus_client import start_http_server, Gauge
 
 # Load the .env file
-load_dotenv()
+load_dotenv("config.env")
 
 # Function to extract bandwidth from the API response (JSON)
 def extract_bandwidth_from_api(api_url):
@@ -74,4 +74,4 @@ if __name__ == "__main__":
                 print(f"Skipping {metric_name}: No valid API URL or metric name found.")
                 
         # Sleep for 10 seconds before making the next request
-        time.sleep(10)  # Fetch data from all APIs every 10 seconds
+        time.sleep(os.getenv('TIME_SLEEP'))  # Fetch data from all APIs every 10 seconds

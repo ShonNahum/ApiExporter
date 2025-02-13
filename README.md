@@ -13,7 +13,7 @@ The purpose of this project is to:
 
 - **Scrape multiple APIs**: Supports multiple API URLs specified in a [config.env](config.env) file.
 - **Expose metrics to Prometheus**: Provides an HTTP endpoint (`/metrics`) that Prometheus can scrape.
-- **Customizable Scraping Frequency**: Scrapes API data every X seconds (Depends on what you set in config.env)
+- **Customizable Scraping Frequency**: Scrapes API data every 10 seconds by defaults (can override in config.env with TIME_SLEEP env varaible)
 - **Dynamic Metric Names**: The metric names are dynamically generated based on the environment variable names.
 
 ## Requirements

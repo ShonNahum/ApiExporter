@@ -74,4 +74,5 @@ if __name__ == "__main__":
                 print(f"Skipping {metric_name}: No valid API URL or metric name found.")
                 
         # Sleep for 10 seconds before making the next request
-        time.sleep(os.getenv('TIME_SLEEP'))  # Fetch data from all APIs every 10 seconds
+        time.sleep(int(os.getenv('TIME_SLEEP', 10)))  # Default to 10 seconds if TIME_SLEEP is not set
+

@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+import threading
 from dotenv import load_dotenv
 from prometheus_client import start_http_server, Gauge
 
@@ -8,58 +9,52 @@ load_dotenv("config.env")
 
 def extract_bandwidth_from_api(api_url):
     try:
-        response = requests.get(api_url)
-        response.raise_for_status()  
-
+        response = requests.get(api_url, timeout=5)
+        response.raise_for_status()
         data = response.json()
 
-        if isinstance(data, list):
-            if len(data) > 0:
-                bandwidth_value = data[0].get(os.getenv('BUZZ_WORD'))
-                if bandwidth_value is not None:
-                    return float(bandwidth_value)
-            else:
-                print(f"The response list from {api_url} is empty.")
-                return None
-        else:
-            print(f"API response from {api_url} is not a list.")
-            return None
+        if isinstance(data, list) and data:
+            bandwidth_value = data[0].get(os.getenv('BUZZ_WORD'))
+            return float(bandwidth_value) if bandwidth_value is not None else None
+        print(f"Invalid API response from {api_url}.")
+        return None
     except requests.RequestException as e:
-        print(f"Error making API request to {api_url}: {e}")
+        print(f"API request error: {e}")
         return None
 
-metrics = {}
+def update_metrics():
+    while True:
+        for metric_name, gauge in metrics.items():
+            api_url = api_urls.get(metric_name)
+            if api_url:
+                bandwidth_value = extract_bandwidth_from_api(api_url)
+                if bandwidth_value is not None:
+                    gauge.set(bandwidth_value)
+                    print(f"Updated value of{metric_name} to {bandwidth_value}")
+                else:
+                    print(f"Skipping update for {metric_name}")
 
+        time.sleep(TIME_SLEEP)
+
+
+metrics = {}
+api_urls = {}
 api_keys = [key for key in os.environ.keys() if key.endswith("_API")]
+TIME_SLEEP = int(os.getenv('TIME_SLEEP', 60))
+PORT = int(os.getenv("PORT", 8000))
 
 for api_key in api_keys:
     api_url = os.getenv(api_key)
-    metric_name = api_key.replace("_API", "") 
-    
+    metric_name = api_key.replace("_API", "")
     if api_url and metric_name:
         metrics[metric_name] = Gauge(metric_name, f"Current {os.getenv('BUZZ_WORD')} usage for {metric_name}")
-        print(f"Configured metric for {metric_name} with URL: {api_url}")
-    else:
-        print(f"Skipping invalid configuration for {api_key}: Missing API URL or Metric Name")
+        api_urls[metric_name] = api_url
 
-start_http_server(int(os.getenv("PORT", 8000)))
+start_http_server(PORT)
 
-if __name__ == "__main__":
-    while True:
-        for api_key in api_keys:
-            api_url = os.getenv(api_key)
-            metric_name = api_key.replace("_API", "") 
-            
-            if api_url and metric_name and metric_name in metrics:
-                bandwidth_value = extract_bandwidth_from_api(api_url)
-                
-                if bandwidth_value is not None:
-                    metrics[metric_name].set(bandwidth_value)
-                    print(f"Updated {metric_name} {os.getenv('BUZZ_WORD')} to {bandwidth_value}.")
-                else:
-                    print(f"Skipping metric update for {metric_name} due to invalid bandwidth data.")
-            else:
-                print(f"Skipping {metric_name}: No valid API URL or metric name found.")
-                
-        time.sleep(int(os.getenv('TIME_SLEEP', 10))) 
+# Run metric update loop in a background thread
+threading.Thread(target=update_metrics, daemon=True).start()
 
+# Keeping the main thread alive
+while True:
+    time.sleep(3600)

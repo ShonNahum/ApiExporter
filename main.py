@@ -4,7 +4,18 @@ import time
 import threading
 from dotenv import load_dotenv
 from prometheus_client import start_http_server, Gauge
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,  # Change to DEBUG for more details
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),  # Save logs to a file
+        logging.StreamHandler()  # Also output logs to the console
+    ]
+)
+
+logger = logging.getLogger(__name__)
 load_dotenv("config.env")
 
 def extract_bandwidth_from_api(api_url):
@@ -14,12 +25,12 @@ def extract_bandwidth_from_api(api_url):
         data = response.json()
 
         if isinstance(data, list) and data:
-            bandwidth_value = data[0].get(os.getenv('BUZZ_WORD'))
+            bandwidth_value = data[0].get(os.getenv('BUZZ_WORD', 'bandwidth'))
             return float(bandwidth_value) if bandwidth_value is not None else None
-        print(f"Invalid API response from {api_url}.")
+        logger.error(f"Invalid API response from {api_url}.")
         return None
     except requests.RequestException as e:
-        print(f"API request error: {e}")
+        logger.error(f"API request error: {e}")
         return None
 
 def update_metrics():
@@ -30,9 +41,9 @@ def update_metrics():
                 bandwidth_value = extract_bandwidth_from_api(api_url)
                 if bandwidth_value is not None:
                     gauge.set(bandwidth_value)
-                    print(f"Updated value of{metric_name} to {bandwidth_value}")
+                    logger.info(f"Updated value of {metric_name} to {bandwidth_value}")
                 else:
-                    print(f"Skipping update for {metric_name}")
+                    logger.info(f"Skipping update for {metric_name}")
 
         time.sleep(TIME_SLEEP)
 

@@ -1,14 +1,12 @@
-# Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# Set the working directory in the container
+LABEL maintainer="ShonNahum"
+LABEL description="A Prometheus exporter for API's single buzz_word VALUE monitoring"
+
 WORKDIR /app
 
-# Copy the current directory contents (including the .env file) into the container at /app
 COPY . /app
 
-# Install dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Command to run the application
 CMD ["python", "main.py"]

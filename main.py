@@ -7,11 +7,10 @@ from prometheus_client import start_http_server, Gauge
 import logging
 
 logging.basicConfig(
-    level=logging.INFO,  # Change to DEBUG for more details
+    level=logging.INFO, 
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("app.log"),  # Save logs to a file
-        logging.StreamHandler()  # Also output logs to the console
+        logging.StreamHandler()  
     ]
 )
 

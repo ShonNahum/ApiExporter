@@ -18,8 +18,15 @@ logger = logging.getLogger(__name__)
 load_dotenv("config.env")
 
 def extract_bandwidth_from_api(api_url):
+    api_token = os.getenv("API_TOKEN")  
+
+    headers = {
+        "Authorization": f"Bearer {api_token}",  
+        "Accept": "application/json"
+    }
+
     try:
-        response = requests.get(api_url, timeout=5)
+        response = requests.get(api_url, headers=headers, timeout=5) 
         response.raise_for_status()
         data = response.json()
 
@@ -31,6 +38,7 @@ def extract_bandwidth_from_api(api_url):
     except requests.RequestException as e:
         logger.error(f"API request error: {e}")
         return None
+
 
 def update_metrics():
     while True:

@@ -17,8 +17,28 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 load_dotenv("config.env")
 
+def find_bandwidth_in_json(data, keyword):
+    """Recursively search for the keyword in any part of the JSON response."""
+    if isinstance(data, dict):  
+        for key, value in data.items():
+            if keyword.lower() in key.lower():
+                try:
+                    return float(value)  
+                except ValueError:
+                    pass  
+            result = find_bandwidth_in_json(value, keyword)  
+            if result is not None:
+                return result
+    elif isinstance(data, list):  
+        for item in data:
+            result = find_bandwidth_in_json(item, keyword)
+            if result is not None:
+                return result
+    return None  
+
 def extract_bandwidth_from_api(api_url):
     api_token = os.getenv("API_TOKEN")  
+    keyword = os.getenv('BUZZ_WORD', 'bandwidth')  
 
     headers = {
         "Authorization": f"Bearer {api_token}",  
@@ -30,14 +50,16 @@ def extract_bandwidth_from_api(api_url):
         response.raise_for_status()
         data = response.json()
 
-        if isinstance(data, list) and data:
-            bandwidth_value = data[0].get(os.getenv('BUZZ_WORD', 'bandwidth'))
-            return float(bandwidth_value) if bandwidth_value is not None else None
-        logger.error(f"Invalid API response from {api_url}.")
+        bandwidth_value = find_bandwidth_in_json(data, keyword)  
+        if bandwidth_value is not None:
+            return bandwidth_value  
+
+        logger.error(f"Bandwidth value not found in API response from {api_url}.")
         return None
     except requests.RequestException as e:
         logger.error(f"API request error: {e}")
         return None
+
 
 
 def update_metrics():

@@ -5,6 +5,8 @@ import threading
 from dotenv import load_dotenv
 from prometheus_client import start_http_server, Gauge
 import logging
+from typing import Optional, Union
+
 
 logging.basicConfig(
     level=logging.INFO, 
@@ -17,22 +19,23 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 load_dotenv("config.env")
 
-def find_bandwidth_in_json(data: dict) -> Optional[float]:
-    """Recursively search for the data in the JSON response."""
+def find_bandwidth_in_json(data: Union[dict, list]) -> Optional[float]:
+    """Recursively search for the first data value in the JSON response."""
     if isinstance(data, dict):  
         for key, value in data.items():
-            if key == "data" and isinstance(value,list) and len(value) > 0 and isinstance(value <sup> </sup>,list) and len(value <sup </sup>) > 1:
-                return value <sup> </sup>[1]
-            elif isinstance(value,(dict,list)):
+            if key == "data" and isinstance(value, list) and len(value) > 1 and isinstance(value[1], (int, float)):
+                return float(value[1])
+            elif isinstance(value, (dict, list)):
                 result = find_bandwidth_in_json(value)
                 if result is not None:
                     return result
-    elif isinstance(data,list):
+    elif isinstance(data, list):
         for item in data:
             result = find_bandwidth_in_json(item)
             if result is not None:
                 return result
     return None
+
 
 def extract_bandwidth_from_api(api_url):
     api_token = os.getenv("API_TOKEN")  
